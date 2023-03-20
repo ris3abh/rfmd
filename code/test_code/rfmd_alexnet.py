@@ -19,7 +19,7 @@ def load_rfmd_npy(file_loc):
 
 
 row_size = 100
-data_location = 'C:/Users/JS/Documents/Winter 22 Quarter/CS615/Project/rfmd'
+data_location = 'C:/Git/rfmd'
 X_train_img = load_rfmd_npy( data_location + '/data/Training_Set/preprocessed_numpy/')
 X_train_img = X_train_img[0:row_size]
 
@@ -42,24 +42,24 @@ Y_test = np.array(Y_test[0:row_size])
 #1 - filter_size = 64
 convLayer1_1 = layers.Conv3DLayer(filters=64, kernel_size=(3, 3), stride=1)
 reLuLayer1_1 = layers.ReluLayer()
-convLayer1_2 = layers.Conv3DLayer(filters=64, kernel_size=(3, 3), stride=1)
-reLuLayer1_2 = layers.ReluLayer()
+# convLayer1_2 = layers.Conv3DLayer(filters=64, kernel_size=(3, 3), stride=1)
+# reLuLayer1_2 = layers.ReluLayer()
 maxPooling1 = layers.PoolingLayer(size=2, stride = 2)
 
 #2 - filter_size = 128
-convLayer2_1 = layers.Conv3DLayer(filters=128, kernel_size=(3, 3), stride=1)
-reLuLayer2_1 = layers.ReluLayer()
-convLayer2_2 = layers.Conv3DLayer(filters=128, kernel_size=(3, 3), stride=1)
-reLuLayer2_2 = layers.ReluLayer()
-maxPooling2 = layers.PoolingLayer(size=2, stride = 2)
+# convLayer2_1 = layers.Conv3DLayer(filters=128, kernel_size=(3, 3), stride=1)
+# reLuLayer2_1 = layers.ReluLayer()
+# convLayer2_2 = layers.Conv3DLayer(filters=128, kernel_size=(3, 3), stride=1)
+# reLuLayer2_2 = layers.ReluLayer()
+# maxPooling2 = layers.PoolingLayer(size=2, stride = 2)
 
 #3 - filter_size = 256
 convLayer3_1 = layers.Conv3DLayer(filters=256, kernel_size=(3, 3), stride=1)
 reLuLayer3_1 = layers.ReluLayer()
-convLayer3_2 = layers.Conv3DLayer(filters=256, kernel_size=(3, 3), stride=1)
-reLuLayer3_2 = layers.ReluLayer()
-convLayer3_3 = layers.Conv3DLayer(filters=256, kernel_size=(3, 3), stride=1)
-reLuLayer3_3 = layers.ReluLayer()
+# convLayer3_2 = layers.Conv3DLayer(filters=256, kernel_size=(3, 3), stride=1)
+# reLuLayer3_2 = layers.ReluLayer()
+# convLayer3_3 = layers.Conv3DLayer(filters=256, kernel_size=(3, 3), stride=1)
+# reLuLayer3_3 = layers.ReluLayer()
 maxPooling2 = layers.PoolingLayer(size=2, stride = 2)
 
 #3 - filter_size = 512
@@ -67,21 +67,21 @@ convLayer4_1 = layers.Conv3DLayer(filters=512, kernel_size=(3, 3), stride=1)
 reLuLayer4_1 = layers.ReluLayer()
 convLayer4_2 = layers.Conv3DLayer(filters=512, kernel_size=(3, 3), stride=1)
 reLuLayer4_2 = layers.ReluLayer()
-convLayer4_3 = layers.Conv3DLayer(filters=512, kernel_size=(3, 3), stride=1)
+convLayer4_3 = layers.Conv3DLayer(filters=192, kernel_size=(3, 3), stride=1)
 reLuLayer4_3 = layers.ReluLayer()
 maxPooling3 = layers.PoolingLayer(size=2, stride = 2)
 
 flattenLayer = layers.FlattenLayer()
 fcLayer1 = layers.FullyConnectedLayer(4096, 4) #need to change
-softmaxLayer = layers.LogisticSigmoidLayer()
+fcLayer2 = layers.FullyConnectedLayer(4096, 4)
+activationLayer = layers.LogisticSigmoidLayer()
 crossEntropyLoss = layers.CrossEntropy()
 
-rfmd_layers = [convLayer1_1, reLuLayer1_1, convLayer1_2, reLuLayer1_2, maxPooling1,
-               convLayer2_1, reLuLayer2_1, convLayer2_2, reLuLayer2_2, maxPooling2,
-               convLayer3_1, reLuLayer3_1, convLayer3_2, reLuLayer3_2, convLayer3_3, reLuLayer3_3, maxPooling2,
-               convLayer4_1, reLuLayer4_1, convLayer4_2, reLuLayer4_2, convLayer4_3, reLuLayer4_3, maxPooling3,
-               flattenLayer,
-               fcLayer1, softmaxLayer,
+rfmd_layers = [convLayer1_1, reLuLayer1_1, maxPooling1,
+               convLayer3_1, reLuLayer3_1, maxPooling2,
+               convLayer4_1, reLuLayer4_1, convLayer4_2,
+               reLuLayer4_2, convLayer4_3, reLuLayer4_3, maxPooling3,
+               flattenLayer, fcLayer1, fcLayer2, activationLayer,
                crossEntropyLoss
         ]
 
