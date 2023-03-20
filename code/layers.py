@@ -334,18 +334,30 @@ class Flatten(Layer):
         return gradIn.reshape(self.shape)
     
 class ConvolutionalLayer2D(Layer):
-    def __init__(self, num_filters, filter_size, stride=1, padding=0):
+    def __init__(self, num_filters, filter_size, stride=1, padding=0, kernel = True):
         self.num_filters = num_filters
         self.filter_size = filter_size
         self.stride = stride
         self.padding = padding
         self.prevIn = []
         self.prevOut = []
+        self.kernel = kernel
+        self.filter = None
+
+    ## taking kernel from the user 
+    def setFilters(self, filters):
+        self.filters = filters
+
+    def getFilters(self):
+        return self.filters
 
     def forward(self, dataIn):
+    # Add an extra dimension for the number of data points
+        dataIn = np.expand_dims(dataIn, axis=0)
         self.setPrevIn(dataIn)
         num_data, in_channels, in_height, in_width = dataIn.shape
-        self.filters = np.random.randn(self.num_filters, in_channels, self.filter_size, self.filter_size)
+        ## self.filters = np.random.randn(self.num_filters, in_channels, self.filter_size, self.filter_size)
+        self.filter = self.getFilters()
         out_height = int((in_height + 2 * self.padding - self.filter_size) / self.stride + 1)
         out_width = int((in_width + 2 * self.padding - self.filter_size) / self.stride + 1)
         out = np.zeros((num_data, self.num_filters, out_height, out_width))
@@ -360,7 +372,6 @@ class ConvolutionalLayer2D(Layer):
                         w_end = w_start + self.filter_size
                         input_slice = padded_input[data_idx, :, h_start:h_end, w_start:w_end]
                         out[data_idx, filter_idx, h_idx, w_idx] = np.sum(input_slice * self.filters[filter_idx])        
-        
         self.setPrevOut(out)
         return out
 
@@ -385,5 +396,21 @@ class ConvolutionalLayer2D(Layer):
 
         self.setPrevOut(gradOut)
         return gradOut
-    
 
+X = np.array([[[1, 1, 0, 1, 0, 0, 1, 0],
+               [1, 1, 1, 1, 0, 0, 1, 0],
+               [0, 0, 1, 1, 0, 1, 0, 1],
+               [1, 1, 1, 0, 1, 1, 1, 0],
+               [1, 1, 1, 1, 1, 0, 1, 1],
+               [0, 0, 0, 0, 0, 0, 0, 0],
+               [0, 1, 1, 1, 1, 0, 0, 1],
+               [1, 0, 1, 0, 0, 1, 0, 1]]])
+
+kernel = np.array([[2, -1, 2],
+                   [2, -1, 0],
+                   [1, 0, 2]])
+
+L1 = ConvolutionalLayer2D(1, 3, 1, 0)
+L1.setFilters(kernel)
+
+print(L1.forward(X))
