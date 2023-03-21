@@ -5,6 +5,8 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 
+np.set_printoptions(precision=5)
+
 def oneencoding(Yhat):
     Y_unique, Y_inverse = np.unique(Yhat, return_inverse=True)
     return np.eye(Y_unique.shape[0])[Y_inverse]
@@ -18,7 +20,7 @@ def load_rfmd_npy(file_loc):
     return X
 
 
-row_size = 100
+row_size = 5
 data_location = 'C:/Git/rfmd'
 X_train_img = load_rfmd_npy( data_location + '/data/Training_Set/preprocessed_numpy/')
 X_train_img = X_train_img[0:row_size]
@@ -40,7 +42,7 @@ Y_test = np.array(Y_test[0:row_size])
 
 #VGG16
 #1 - filter_size = 64
-convLayer1_1 = layers.Conv3DLayer(filters=64, kernel_size=(3, 3), stride=1)
+convLayer1_1 = layers.Conv3DLayer(filters=64, kernel_size=(5, 5), stride=1)
 reLuLayer1_1 = layers.ReluLayer()
 # convLayer1_2 = layers.Conv3DLayer(filters=64, kernel_size=(3, 3), stride=1)
 # reLuLayer1_2 = layers.ReluLayer()
@@ -54,7 +56,7 @@ maxPooling1 = layers.PoolingLayer(size=2, stride = 2)
 # maxPooling2 = layers.PoolingLayer(size=2, stride = 2)
 
 #3 - filter_size = 256
-convLayer3_1 = layers.Conv3DLayer(filters=256, kernel_size=(3, 3), stride=1)
+convLayer3_1 = layers.Conv3DLayer(filters=256, kernel_size=(5, 5), stride=1)
 reLuLayer3_1 = layers.ReluLayer()
 # convLayer3_2 = layers.Conv3DLayer(filters=256, kernel_size=(3, 3), stride=1)
 # reLuLayer3_2 = layers.ReluLayer()
@@ -63,17 +65,17 @@ reLuLayer3_1 = layers.ReluLayer()
 maxPooling2 = layers.PoolingLayer(size=2, stride = 2)
 
 #3 - filter_size = 512
-convLayer4_1 = layers.Conv3DLayer(filters=512, kernel_size=(3, 3), stride=1)
+convLayer4_1 = layers.Conv3DLayer(filters=512, kernel_size=(5, 5), stride=1)
 reLuLayer4_1 = layers.ReluLayer()
-convLayer4_2 = layers.Conv3DLayer(filters=512, kernel_size=(3, 3), stride=1)
+convLayer4_2 = layers.Conv3DLayer(filters=512, kernel_size=(5, 5), stride=1)
 reLuLayer4_2 = layers.ReluLayer()
-convLayer4_3 = layers.Conv3DLayer(filters=192, kernel_size=(3, 3), stride=1)
+convLayer4_3 = layers.Conv3DLayer(filters=192, kernel_size=(5, 5), stride=1)
 reLuLayer4_3 = layers.ReluLayer()
 maxPooling3 = layers.PoolingLayer(size=2, stride = 2)
 
 flattenLayer = layers.FlattenLayer()
-fcLayer1 = layers.FullyConnectedLayer(4096, 4) #need to change
-fcLayer2 = layers.FullyConnectedLayer(4096, 4)
+fcLayer1 = layers.FullyConnectedLayer(6230016, 4) #need to change
+fcLayer2 = layers.FullyConnectedLayer(4, 4)
 activationLayer = layers.LogisticSigmoidLayer()
 crossEntropyLoss = layers.CrossEntropy()
 
@@ -84,6 +86,13 @@ rfmd_layers = [convLayer1_1, reLuLayer1_1, maxPooling1,
                flattenLayer, fcLayer1, fcLayer2, activationLayer,
                crossEntropyLoss
         ]
+
+# rfmd_layers = [convLayer1_1, reLuLayer1_1, maxPooling1,
+#                convLayer4_3, reLuLayer4_3, maxPooling2,
+#                flattenLayer, fcLayer1, fcLayer2, activationLayer,
+#                crossEntropyLoss
+#         ]
+
 
 util.train_model(rfmd_layers, X_train_img, Y_train, X_test_img, Y_test, "rmfd_model", 
                  learning_rate = 0.0001, 

@@ -272,6 +272,28 @@ class Conv2DLayer(Layer):
             for x in range(outputWidth):
                 output[y, x] = (kernel * dataInPadded[y*self.stride: y*self.stride + kernelHeight, x*self.stride: x*self.stride + kernelWidth]).sum()
 
+        # # return output
+        # kh, kw = kernel.shape
+        # dh, dw = dataIn.shape
+
+        # # calculate output dimensions
+        # oh = (dh - kh + 2 * padding) // stride + 1
+        # ow = (dw - kw + 2 * padding) // stride + 1
+
+        # # create padded data
+        # if padding != 0:
+        #     pad_dims = ((padding, padding), (padding, padding))
+        #     dataIn = np.pad(dataIn, pad_dims)
+
+        # # create a view of the input data with the appropriate shape and strides
+        # sh, sw = dataIn.strides
+        # shape = (oh, ow, kh, kw)
+        # strides = (sh * stride, sw * stride, sh, sw)
+        # data_view = np.lib.stride_tricks.as_strided(dataIn, shape=shape, strides=strides)
+
+        # # apply element-wise multiplication and summation to get the convolution result
+        # output = np.tensordot(data_view, kernel, axes=[(2, 3), (0, 1)])
+
         return output
 
     def gradient(self):
@@ -285,6 +307,12 @@ class Conv2DLayer(Layer):
         return np.array([self.convolve2D(np.pad(gradIn_i, self.kernel_size[0]-1, constant_values=0), grad_i) for gradIn_i, grad_i in zip(gradIn, grad)])
 
     def updateKernel(self, gradIn, epoch, learning_rate = 0.0001):
+        # for gradIn_i in gradIn:
+        #     dJdw = self.convolve2D(self.getPrevIn(), gradIn_i, padding=0, stride=1)
+        #     self.weights_s = self.decay_1 * self.weights_s + (1 - self.decay_1) * dJdw
+        #     self.weights_r = self.decay_2 * self.weights_r + (1 - self.decay_2) * dJdw * dJdw
+        #     weights_update = (self.weights_s / (1 - self.decay_1**(epoch+1))) / (np.sqrt(self.weights_r / (1 - self.decay_2**(epoch+1))) + self.stability)
+        #     self.setKernel(self.getKernel() - learning_rate * weights_update)
         for gradIn_i in gradIn:
             for dataIn_i in self.getPrevIn():
                 for gradIn_i_kernel in gradIn_i:

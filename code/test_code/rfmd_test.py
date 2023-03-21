@@ -1,5 +1,5 @@
 import src.util as util
-from sklearn.model_selection import train_test_split
+# from sklearn.model_selection import train_test_split
 import src.layers as layers
 import numpy as np
 import os
@@ -19,7 +19,7 @@ def load_rfmd_npy(file_loc):
     return X
 
 row_size = 100
-data_location = 'C:/Users/JS/Documents/Winter 22 Quarter/CS615/Project/rfmd'
+data_location = 'C:/Git/rfmd'
 X_train_img = load_rfmd_npy( data_location + '/data/Training_Set/preprocessed_numpy/')
 X_train_img = X_train_img[0:row_size]
 
@@ -51,7 +51,7 @@ tanhLayer3 = layers.TanhLayer()
 fcLayer4 = layers.FullyConnectedLayer(120, 84, xavier_init = True)
 dropoutLayer4 = layers.DropoutLayer(0.8)
 tanhLayer4 = layers.TanhLayer()
-fcLayer5 = layers.FullyConnectedLayer(16428, 4, xavier_init = True)
+fcLayer5 = layers.FullyConnectedLayer(300, 4, xavier_init = True)
 softmaxLayer = layers.LogisticSigmoidLayer()
 crossEntropyLoss = layers.CrossEntropy()
 rfmd_layers = [convLayer1, tanhLayer1, poolingLayer1,
@@ -59,6 +59,13 @@ rfmd_layers = [convLayer1, tanhLayer1, poolingLayer1,
         fcLayer3, tanhLayer3, 
         fcLayer4, tanhLayer4, 
         fcLayer5, softmaxLayer, crossEntropyLoss]
+
+rfmd_layers = [convLayer1, tanhLayer1, poolingLayer1,
+        convLayer2, tanhLayer2, poolingLayer2, flattenLayer, 
+        fcLayer3, tanhLayer3, 
+        fcLayer4, tanhLayer4, 
+        fcLayer5, softmaxLayer, crossEntropyLoss]
+
 
 rfmd_layers_test = [convLayer1, poolingLayer1, flattenLayer, fcLayer5, softmaxLayer, crossEntropyLoss]
 
