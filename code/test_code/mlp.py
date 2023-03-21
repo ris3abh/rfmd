@@ -53,17 +53,22 @@ X_test_img = X_test_img.reshape(X_test_img.shape[0], X_test_img.shape[1]*X_test_
 L1 = InputLayer(X_train_img)
 L2 = FullyConnectedLayer(X_train_img.shape[1], 512)
 L3 = ReluLayer()
+Ld0 = DropoutLayer(0.5)
 L4 = FullyConnectedLayer(512, 256)
 L5 = ReluLayer()
+Ld1 = DropoutLayer(0.5)
 L6 = FullyConnectedLayer(256, 128)
 L7 = ReluLayer()
+Ld2 = DropoutLayer(0.5)
 L8 = FullyConnectedLayer(128, 64)
 L9 = ReluLayer()
+Ld3 = DropoutLayer(0.5)
 L10 = FullyConnectedLayer(64, 4)
 L11 = LogisticSigmoidLayer()
 L12 = BinaryCrossEntropy()
 
+Ld = [L1, L2, L3, Ld0, L4, L5, Ld1, L6, L7, Ld2, L8, L9, Ld3, L10, L11, L12]
 L = [L1, L2, L3, L4, L5, L6, L7, L8, L9, L10, L11, L12]
 
-util.train_model(L, X_train_img, Y_train, X_test_img, Y_test, learning_rate=0.001, max_epochs=30, batch_size=25, condition=10e-10, skip_first_layer=True)
+util.train_model(Ld, L, X_train_img, Y_train, X_test_img, Y_test, learning_rate=0.001, max_epochs=30, batch_size=25, condition=10e-10, skip_first_layer=True)
 
