@@ -470,3 +470,10 @@ class CrossEntropy():
     
     def gradient(self, Y, Yhat):
         return -np.divide(Y, (Yhat + EPSILON))
+
+class BinaryCrossEntropy():
+    def eval(self, Y, Yhat):
+        return -np.mean(Y * np.log(Yhat + EPSILON) + (1 - Y) * np.log(1 - Yhat + EPSILON))
+    
+    def gradient(self, Y, Yhat):
+        return -np.divide(Y, (Yhat + EPSILON)) + np.divide(1 - Y, (1 - Yhat + EPSILON))
