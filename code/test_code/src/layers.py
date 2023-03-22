@@ -75,8 +75,7 @@ class ReluLayer(Layer):
 
     def gradient(self):
         grad = np.where(self.getPrevOut() > 0, 1, 0)
-        tensor = grad
-        return tensor
+        return grad
 
     def backward(self, gradIn):
         gradOut = gradIn * self.gradient()
@@ -253,46 +252,47 @@ class Conv2DLayer(Layer):
         return np.array([[self.convolve2D(dataIn_i, kernel_i, padding, stride) for kernel_i in kernel] for dataIn_i in dataIn])
 
     def convolve2D(self, dataIn, kernel, padding=0, stride=1):
-        kernelHeight = kernel.shape[0]
-        kernelWidth = kernel.shape[1]
-        dataHeight = dataIn.shape[0]
-        dataWidth = dataIn.shape[1]
+        # kernelHeight = kernel.shape[0]
+        # kernelWidth = kernel.shape[1]
+        # dataHeight = dataIn.shape[0]
+        # dataWidth = dataIn.shape[1]
 
-        outputWidth = int(((dataWidth - kernelWidth + 2 * padding) / stride) + 1)
-        outputHeight = int(((dataHeight - kernelHeight + 2 * padding) / stride) + 1)
-        output = np.zeros((outputHeight, outputWidth))
+        # outputWidth = int(((dataWidth - kernelWidth + 2 * padding) / stride) + 1)
+        # outputHeight = int(((dataHeight - kernelHeight + 2 * padding) / stride) + 1)
+        # output = np.zeros((outputHeight, outputWidth))
 
-        if padding != 0:
-            dataInPadded = np.zeros((dataIn.shape[0] + padding*2, dataIn.shape[1] + padding*2))
-            dataInPadded[int(padding):int(-1 * padding), int(padding):int(-1 * padding)] = dataIn
-        else:
-            dataInPadded = dataIn
-
-        for y in range(outputHeight):
-            for x in range(outputWidth):
-                output[y, x] = (kernel * dataInPadded[y*self.stride: y*self.stride + kernelHeight, x*self.stride: x*self.stride + kernelWidth]).sum()
-
-        # # return output
-        # kh, kw = kernel.shape
-        # dh, dw = dataIn.shape
-
-        # # calculate output dimensions
-        # oh = (dh - kh + 2 * padding) // stride + 1
-        # ow = (dw - kw + 2 * padding) // stride + 1
-
-        # # create padded data
         # if padding != 0:
-        #     pad_dims = ((padding, padding), (padding, padding))
-        #     dataIn = np.pad(dataIn, pad_dims)
+        #     dataInPadded = np.zeros((dataIn.shape[0] + padding*2, dataIn.shape[1] + padding*2))
+        #     dataInPadded[int(padding):int(-1 * padding), int(padding):int(-1 * padding)] = dataIn
+        # else:
+        #     dataInPadded = dataIn
 
-        # # create a view of the input data with the appropriate shape and strides
-        # sh, sw = dataIn.strides
-        # shape = (oh, ow, kh, kw)
-        # strides = (sh * stride, sw * stride, sh, sw)
-        # data_view = np.lib.stride_tricks.as_strided(dataIn, shape=shape, strides=strides)
+        # for y in range(outputHeight):
+        #     for x in range(outputWidth):
+        #         output[y, x] = (kernel * dataInPadded[y*self.stride: y*self.stride + kernelHeight, x*self.stride: x*self.stride + kernelWidth]).sum()
 
-        # # apply element-wise multiplication and summation to get the convolution result
-        # output = np.tensordot(data_view, kernel, axes=[(2, 3), (0, 1)])
+        # return output
+        
+        kh, kw = kernel.shape
+        dh, dw = dataIn.shape
+
+        # calculate output dimensions
+        oh = (dh - kh + 2 * padding) // stride + 1
+        ow = (dw - kw + 2 * padding) // stride + 1
+
+        # create padded data
+        if padding != 0:
+            pad_dims = ((padding, padding), (padding, padding))
+            dataIn = np.pad(dataIn, pad_dims)
+
+        # create a view of the input data with the appropriate shape and strides
+        sh, sw = dataIn.strides
+        shape = (oh, ow, kh, kw)
+        strides = (sh * stride, sw * stride, sh, sw)
+        data_view = np.lib.stride_tricks.as_strided(dataIn, shape=shape, strides=strides)
+
+        # apply element-wise multiplication and summation to get the convolution result
+        output = np.tensordot(data_view, kernel, axes=[(2, 3), (0, 1)])
 
         return output
 
@@ -307,16 +307,16 @@ class Conv2DLayer(Layer):
         return np.array([self.convolve2D(np.pad(gradIn_i, self.kernel_size[0]-1, constant_values=0), grad_i) for gradIn_i, grad_i in zip(gradIn, grad)])
 
     def updateKernel(self, gradIn, epoch, learning_rate = 0.0001):
-        # for gradIn_i in gradIn:
-        #     dJdw = self.convolve2D(self.getPrevIn(), gradIn_i, padding=0, stride=1)
-        #     self.weights_s = self.decay_1 * self.weights_s + (1 - self.decay_1) * dJdw
-        #     self.weights_r = self.decay_2 * self.weights_r + (1 - self.decay_2) * dJdw * dJdw
-        #     weights_update = (self.weights_s / (1 - self.decay_1**(epoch+1))) / (np.sqrt(self.weights_r / (1 - self.decay_2**(epoch+1))) + self.stability)
-        #     self.setKernel(self.getKernel() - learning_rate * weights_update)
         for gradIn_i in gradIn:
-            for dataIn_i in self.getPrevIn():
-                for gradIn_i_kernel in gradIn_i:
-                    self.updateKernel2D(gradIn_i_kernel, dataIn_i, epoch, learning_rate)
+            dJdw = self.convolve2D(self.getPrevIn(), gradIn_i, padding=0, stride=1)
+            self.weights_s = self.decay_1 * self.weights_s + (1 - self.decay_1) * dJdw
+            self.weights_r = self.decay_2 * self.weights_r + (1 - self.decay_2) * dJdw * dJdw
+            weights_update = (self.weights_s / (1 - self.decay_1**(epoch+1))) / (np.sqrt(self.weights_r / (1 - self.decay_2**(epoch+1))) + self.stability)
+            self.setKernel(self.getKernel() - learning_rate * weights_update)
+        # for gradIn_i in gradIn:
+        #     for dataIn_i in self.getPrevIn():
+        #         for gradIn_i_kernel in gradIn_i:
+        #             self.updateKernel2D(gradIn_i_kernel, dataIn_i, epoch, learning_rate)
 
     def updateKernel2D(self, gradIn, dataIn, epoch, learning_rate = 0.0001):
         dJdw = np.array([self.convolve2D(dataIn, gradIn, padding=0, stride=1)])
@@ -379,16 +379,26 @@ class PoolingLayer(Layer):
         return np.array([self.pool2D(dataIn[i]) for i in range(len(dataIn))])
     
     def pool2D(self, dataIn):
-        dataHeight = dataIn.shape[0]
-        dataWidth = dataIn.shape[1]
+        # dataHeight = dataIn.shape[0]
+        # dataWidth = dataIn.shape[1]
 
+        # outputWidth = int(((dataWidth - self.size) / self.stride) + 1)
+        # outputHeight = int(((dataHeight - self.size) / self.stride) + 1)
+        # output = np.zeros((outputHeight, outputWidth))
+
+        # for y in range(outputHeight):
+        #     for x in range(outputWidth):
+        #         output[y, x] = dataIn[y*self.stride:y*self.stride+self.size, x*self.stride:x*self.stride+self.size].max()
+
+        # return output
+        dataHeight, dataWidth = dataIn.shape
         outputWidth = int(((dataWidth - self.size) / self.stride) + 1)
         outputHeight = int(((dataHeight - self.size) / self.stride) + 1)
         output = np.zeros((outputHeight, outputWidth))
 
         for y in range(outputHeight):
             for x in range(outputWidth):
-                output[y, x] = dataIn[y*self.stride:y*self.stride+self.size, x*self.stride:x*self.stride+self.size].max()
+                output[y, x] = np.max(dataIn[y*self.stride:y*self.stride+self.size, x*self.stride:x*self.stride+self.size])
 
         return output
     
@@ -432,6 +442,32 @@ class FlattenLayer(Layer):
     def backward(self, gradIn):
         return gradIn.reshape(self.getPrevIn().shape)
     
+# class DropoutLayer(Layer):
+#     def __init__(self, keep_prob):
+#         super().__init__()
+#         self.keep_prob = keep_prob
+
+#     def forward(self, dataIn, test=False, epoch=1):
+#         self.setPrevIn(dataIn)
+#         if (test):
+#             self.setPrevOut(dataIn)
+#             return dataIn
+#         else:
+#             np.random.seed(epoch)
+#             self.dropOutKey = np.random.rand(dataIn.shape[0], dataIn.shape[1]) < self.keep_prob
+#             dataOut = np.multiply(dataIn, self.dropOutKey)
+#             dataOut = dataOut / self.keep_prob
+#             self.setPrevOut(dataOut)
+#             return dataOut
+
+#     def gradient(self):
+#         tensor = np.ones_like(self.dropOutKey) / self.keep_prob
+#         return tensor
+
+#     def backward(self, gradIn):
+#         gradOut = gradIn * self.gradient()
+#         return gradOut
+
 class DropoutLayer(Layer):
     def __init__(self, keep_prob):
         super().__init__()
@@ -444,7 +480,7 @@ class DropoutLayer(Layer):
             return dataIn
         else:
             np.random.seed(epoch)
-            self.dropOutKey = np.random.rand(dataIn.shape[0], dataIn.shape[1]) < self.keep_prob
+            self.dropOutKey = np.random.rand(*dataIn.shape) < self.keep_prob
             dataOut = np.multiply(dataIn, self.dropOutKey)
             dataOut = dataOut / self.keep_prob
             self.setPrevOut(dataOut)
@@ -457,6 +493,7 @@ class DropoutLayer(Layer):
     def backward(self, gradIn):
         gradOut = gradIn * self.gradient()
         return gradOut
+
         
 # Objective functions
 class SquaredError():
