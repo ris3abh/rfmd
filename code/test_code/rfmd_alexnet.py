@@ -20,13 +20,13 @@ def load_rfmd_npy(file_loc):
     return X
 
 
-row_size = 100
+row_size = 949
 data_location = 'C:/Git/rfmd'
-X_train_img = load_rfmd_npy( data_location + '/data/Training_Set/preprocessed_numpy/')
+X_train_img = load_rfmd_npy( data_location + '/data/Training_Set/preprocessed_numpy_64/')
 X_train_img = X_train_img[0:row_size]
 # X_train_img = X_train_img[:, :, :,np.newaxis]
 
-X_test_img = load_rfmd_npy(data_location + '/data/Evaluation_Set/preprocessed_eval/') #taking eval as a test right now
+X_test_img = load_rfmd_npy(data_location + '/data/Evaluation_Set/preprocessed_eval_64/') #taking eval as a test right now
 X_test_img = X_test_img[0:row_size]
 # X_test_img = X_test_img[:, :, :,np.newaxis]
 
