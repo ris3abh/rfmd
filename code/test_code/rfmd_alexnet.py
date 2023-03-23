@@ -101,19 +101,9 @@ rfmd_layers = [
             ]
 
 
-
-            # convLayer1_2, reLuLayer1_2, maxPooling1,
-# convLayer3_1, reLuLayer3_1, convLayer3_2, reLuLayer3_2, maxPooling2, dropout2,
-# rfmd_layers = [convLayer1_1, reLuLayer1_1, maxPooling1,
-#                convLayer4_3, reLuLayer4_3, maxPooling2,
-#                flattenLayer, fcLayer1, fcLayer2, activationLayer,
-#                crossEntropyLoss
-#         ]
-
-
 util.train_model(rfmd_layers, X_train_img, Y_train, X_test_img, Y_test, "rmfd_model", 
-                 learning_rate = 0.001, 
+                 learning_rate = 0.0001, 
                  max_epochs = 5, 
-                 batch_size = 4,
+                 batch_size = 1,
                  condition = 10e-10,
                  skip_first_layer=False)
