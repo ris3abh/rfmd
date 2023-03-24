@@ -68,7 +68,7 @@ def forward(_layers, X, test=True, epoch=1):
     y_hat = h
     return y_hat
 
-def train_model(layers_, X_train, Y_train, X_val, Y_val, filename="default", learning_rate = 0.001, max_epochs = 100, batch_size = 25, condition = 10e-10, skip_first_layer = True):
+def train_model(layers_, X_train, Y_train, X_val, Y_val, X_test, Y_test, filename="default", learning_rate = 0.001, max_epochs = 100, batch_size = 25, condition = 10e-10, skip_first_layer = True):
     epoch = 0
     lastEval = 0
     loss_train = []
@@ -128,26 +128,28 @@ def train_model(layers_, X_train, Y_train, X_val, Y_val, filename="default", lea
         pbar1.set_description(f"Validation loss: {val_eval}")
         acc2 = model_Acc(Y_val, Y_hat_val, "Valuation")
         pbar1.set_description(f"Model Epochs (Train Acc: {format(acc1, '.4f')} Val Acc: {format(acc2, '.4f')}))")
-        #print("Epoch: %d, Train Loss: %f, Val Loss: %f" % (epoch, eval, val_eval))
         
         epoch += 1
         pbar1.update(1)
     pbar2.close()
     pbar1.close()
 
-    calculate_accuracy(X_train, Y_train, layers_, type = "Training")
-    calculate_accuracy(X_val, Y_val, layers_, type = "Validation")
+    train_acc = calculate_accuracy(X_train, Y_train, layers_, type = "Training")
+    val_acc = calculate_accuracy(X_val, Y_val, layers_, type = "Validation")
+    test_acc = calculate_accuracy(X_test, Y_test, layers_, type = "Testing")
     
-
     # plot log loss
     plt.xlabel("Epoch")
-    plt.ylabel("J")
+    plt.ylabel("Log Loss")
     plt.plot(loss_train, label="Training Loss")
     plt.plot(loss_val, label="Validation Loss")
     plt.legend()
-    plt.show()
-    #plt.savefig(f'./lenet_figures/{filename}.png')
+    #plt.show()
+    plt.title(" Training: " + str(round(train_acc, 2)) + "%, Validation: " + str(round(val_acc, 2)) + "%" +", Testing: " + str(round(test_acc, 2)) + "%")
+    
+    plt.savefig(f'{filename}.png')
     plt.clf()
+    return layers_
 
 def model_Acc(y_true, y_pred, type = None, threshold=0.5):
     # convert y_pred to binary matrix
@@ -161,12 +163,10 @@ def model_Acc(y_true, y_pred, type = None, threshold=0.5):
 def calculate_accuracy(X, Y, layers, type = "Training"):
     Y_hat = forward(layers, X)
     accuracy = model_Acc(Y, Y_hat)
-    #accuracy = (Y.argmax(axis=1) == Y_hat.argmax(axis=1)).mean() * 100
     print(f"{type} accuracy: {accuracy}")
+    return accuracy * 100
     
 def model_Acc1(y, y_hat, type = None):
-    #Y_hat = np.argmax(Y_hat)
-    #return (y == Y_hat).mean() * 100
     acc = 0
     for i in range(len(y)):
         y_argmax = np.argmax(y_hat[i], axis = 1)
