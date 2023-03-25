@@ -1,10 +1,5 @@
 To run the code:
-
-dowload data from: https://riadd.grand-challenge.org/download-all-classes/ 
-
-Run the following command to generate the numpy binaries of all datasets:
-
-> Python image_preprocessing_windows.py
+Open code folder in the terminal
 
 To run with 100 samples run the following command:
 > Python rfmd_100.py
