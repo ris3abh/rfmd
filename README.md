@@ -37,7 +37,7 @@ The data for the project is taken from a data challenge.: RFMD: https://riadd.gr
 Model  | Sample Size.  | Train Acc. |Validation Acc.|
 ------ | ------------- | -----------|---------------|
 MLP1   | 949           |    85%     |       67%     |
-CNN 1  | 100           |    83%     |       69%     |
+CNN 1  | 949           |    83%     |       69%     |
 -----------------------------------------------------
 
 In the future, I plan to implement the same problem using advanced and faster approaches like using VGGNet model as a pre-trained model to classify multi-labeled images. This will be done using Tensorflow and Keras.
